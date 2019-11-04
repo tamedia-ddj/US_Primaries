@@ -36,7 +36,7 @@ table(df$answer)
 
 
 ##  reduce to ratings
-ratings <- c("A", "A-", "A+", "B", "B+")
+ratings <- c("A", "A-", "A+", "B", "B+", "B-")
 df <- df[df$fte_grade %in% ratings, ]
 df$fte_grade <- droplevels(df$fte_grade)
 
