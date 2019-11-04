@@ -2,7 +2,8 @@ library(ggplot2)
 library(plotly) # to make ggplot interactive
 library(txtplot)
 
-setwd("D:/Tamedia/GSync/Datenteam/Projekte/201910_US_Election_Polls")
+# set working directory
+setwd("WORKING_DIRECTORY")
 print(getwd())
 
 ## Download csv from 538 ####
@@ -27,10 +28,8 @@ df <- df[df$party == "DEM", ]
 table(df$party)
 
 
-##  reduce to candidates
+##  reduce to top 5 candidates
 canditates <- c("Warren", "Buttigieg", "Sanders","Biden", "Harris")
-# top 8:
-# canditates <- c("Amy Klobuchar", "Elizabeth Warren", "Pete Buttigieg", "Bernard Sanders", "Beto O'Rourke", "Cory A. Booker", "Kamala D. Harris", "Joseph R. Biden Jr.")
 df <- df[df$answer %in% canditates, ]
 df$answer <- droplevels(df$answer)
 table(df$answer)
@@ -50,15 +49,16 @@ df <- df[df$notes != "head-to-head poll", ]
 table(df$notes)
 
 # there seems to be one more head-to-head poll not correctly declared:
-# d <- df %>% count(question_id)
+# remove it
 df <- df[df$question_id != 92814, ]
 
 
 ## Upsampling ####
 
-## One Datapoint per day
+## One Datapoint per day for smoothing
 xl <- as.numeric(seq(min(df$date_new), max(df$date_new), by = 1))
 df_fulltime <- data.frame(time = xl)
+# adjust date
 df_fulltime[, 'time_real'] <- as.Date(df_fulltime$time, origin = as.Date("1970-01-01"))
 
 
@@ -69,7 +69,7 @@ a <- ggplot(df, aes(x = date_new, y = pct)) +
    geom_point(aes(colour = fte_grade, text = paste("pollster:", pollster, "<br>", "ID:", question_id, "<br>", "s_size:", sample_size, "<br>", "rating:", fte_grade))) +
    geom_smooth(method = "loess", se = TRUE, span = 0.5) + # , n = 3
    facet_wrap( ~ candidate_name)
-#
+
 # create interactie version of ggplot
 p <- ggplotly(a)
 p
@@ -107,4 +107,4 @@ ggplot() +
 
 ## Store data ####
 
-# write.csv(df_fulltime, "Data_output/test_5_smooth.csv")
+# write.csv(df_fulltime, "polls_smooth.csv")
